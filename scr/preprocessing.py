@@ -18,10 +18,24 @@ def main(data_path):
     # df.to_csv('data/heart_cleaned.csv', index=False)
 
 def feature_engineering(df):
-    ever_claims(df)
+    recency_ratio(df)
+    claim_rate(df)
+    log_claims_rate(df)
+    # ratio_premium_to_value_vehicle(df)
 
-def ever_claims(df):
+# def ratio_premium_to_value_vehicle(df):
+#     df['ratio_premium_value_vehicle'] = df['Premium'] / df['Value_vehicle']
 
+def log_claims_rate(df):
+    df['log_claims_rate'] = np.log(df['claim_rate'] + 1e-5)
+
+def claim_rate(df):
+    df['claim_rate'] = df['N_claims_year']/(df['contract_duration'] + 1)
+
+
+def recency_ratio(df):
+    df['recency_ratio'] = df['N_claims_year']/(df['N_claims_history'] + 1)
+    df["claims_rate"] = df["claims_rate"].clip(upper=df["claims_rate"].quantile(0.99))
 
 def fill_empty_values(df):
     fill_the_fuel_type(df)
@@ -86,7 +100,7 @@ def transform_date_data(df):
     df["Date_birth"] = pd.to_datetime(df["Date_birth"], format='%d/%m/%Y')
     df['Date_driving_licence'] = pd.to_datetime(df["Date_driving_licence"], format='%d/%m/%Y')
 
-    df["contract_duration"] = ((df["Date_last_renewal"] - df["Date_start_contract"]).dt.days)/365.25
+    df["contract_duration"] = (((df["Date_last_renewal"] - df["Date_start_contract"]).dt.days)/365.25).apply(lambda x: max(0, x))
     df['age'] = ((df['Date_next_renewal'] - df['Date_birth']).dt.days)/365.25
     df['licence_duration'] = ((df['Date_start_contract'] - df['Date_driving_licence']).dt.days)/365.25
 
