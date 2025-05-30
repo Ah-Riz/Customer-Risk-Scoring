@@ -70,7 +70,7 @@ def fill_the_fuel_type(df):
     }
 
     model = RandomForestClassifier(random_state=42)
-    grid_search = GridSearchCV(model, param_grid, cv=5, scoring='f1_macro', n_jobs=-1)
+    grid_search = GridSearchCV(model, param_grid, cv=5, scoring='f1', n_jobs=-1)
     grid_search.fit(X, y)
 
     print("Best parameters found: ", grid_search.best_params_)
